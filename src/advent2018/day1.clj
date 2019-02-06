@@ -4,15 +4,13 @@
 
 
 (def problem-input
-  (->> (string/split-lines (string/trim (slurp (io/resource "day1.txt"))))))
-
+  (->> "day1.txt"
+       (io/resource)
+       (slurp)
+       (string/trim)
+       (string/split-lines)))
 
 (def problem-numbers (map #(Integer/parseInt %) problem-input))
-
-(defn sum-numbers
-  "Sums all the given numbers specified"
-  [xs]
-  (reduce + xs))
 
 (defn total-numbers
   "docstring"
@@ -28,6 +26,6 @@
           #{}
           xs))
 
-(comment
-
+(defn day1
+  []
   (count-things (total-numbers (cycle problem-numbers))))

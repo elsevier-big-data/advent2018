@@ -1,4 +1,6 @@
-(ns advent2018.day2)
+(ns advent2018.day2
+  (:require [clojure.java.io :as io]
+            [clojure.string :as string]))
 
 ; To make sure you didn't miss any, you scan the likely candidate boxes again, counting the number that have an ID
 ; containing exactly two of any letter and then separately counting those with exactly three of any letter.
@@ -15,7 +17,12 @@
 ;ababab contains three a and three b, but it only counts once.
 ;Of these box IDs, four of them contain a letter which appears exactly twice, and three of them contain a letter which appears exactly three times. Multiplying these together produces a checksum of 4 * 3 = 12.
 
-(def input "abcdef")
+(def problem-input
+  (->> "day2.txt"
+       (io/resource)
+       (slurp)
+       (string/trim)
+       (string/split-lines)))
 
 (defn map-values [f kv]
   (into {} (for [[k v] kv] [k (f v)])))
@@ -31,31 +38,26 @@
   (boolean
     (some #(= % n) xs)))
 
-(def has-2-reps? (partial has-n-reps? 2))
-
-(defn count2s [input]
+(defn repetitions [n input]
   (->> input
        (count-letters)
        (vals)
-       (has-2-reps?)))
-
-(def has-3-reps? (partial has-n-reps? 3))
-
-(defn count3s [input]
-  (->> input
-       (count-letters)
-       (vals)
-       (has-3-reps?)))
+       (has-n-reps? n)))
 
 (defn checksum [input]
   (reduce
-    (fn [count string]
-      (if (count2s string)
-        (inc count)
-        count))
-    0
+    (fn [[count2 count3] string]
+      (let [newcount2 (if (repetitions 2 string)
+                       (inc count2)
+                       count2)]
+      (let [newcount3 (if (repetitions 3 string)
+                       (inc count3)
+                       count3)]
+      [newcount2 newcount3])))
+    [0 0]
     input))
 
-
-
-(checksum ["abcdefe" "ffghy" "aabcd"])
+(defn day2
+  []
+  (let [[twos threes] (checksum problem-input)]
+    (* twos threes)))
